@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	imap2 "github.com/emersion/go-imap"
 	"io/ioutil"
@@ -11,13 +12,11 @@ import (
 	"strings"
 )
 
-type Config struct {
-	Server   string
-	Port     int
-	Login    string
-	Password string
-	TLS      bool
-	Dir      string
+type MailboxMeta struct {
+	Name   string `json:"name"`
+	Server string `json:"server"`
+	Login  string `json:"login"`
+	Count  int    `json:"count"`
 }
 
 type App struct {
@@ -62,12 +61,37 @@ func (a *App) Archive(cfg *Config) error {
 	return nil
 }
 
+func (a *App) writeMeta(dir string, srv *Imap, mailbox *imap2.MailboxStatus) error {
+	meta := &MailboxMeta{
+		Name:   mailbox.Name,
+		Server: srv.cfg.Server,
+		Login:  srv.cfg.Login,
+		Count:  int(mailbox.Messages),
+	}
+	b, err := json.MarshalIndent(meta, " ", " ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal: %w", err)
+	}
+	fname := filepath.Join(dir, "mailbox.json")
+	err = ioutil.WriteFile(fname, b, os.ModePerm)
+	if err != nil {
+		return fmt.Errorf("failed to write %s: %w", fname, err)
+	}
+	return err
+}
+
 func (a *App) saveMailbox(srv *Imap, mailbox *imap2.MailboxStatus) error {
 	targetDir := filepath.Join(a.cfg.Dir, sanitize(mailbox.Name))
 	err := os.MkdirAll(targetDir, os.ModePerm)
 	if err != nil {
 		return fmt.Errorf("failed to mkdir %s: %w", targetDir, err)
 	}
+
+	err = a.writeMeta(targetDir, srv, mailbox)
+	if err != nil {
+		return fmt.Errorf("failed to create meta: %w", err)
+	}
+
 	if mailbox.Messages > 0 {
 		mails, err := srv.Mails(mailbox.Name, []imap2.FetchItem{imap2.FetchEnvelope, imap2.FetchRFC822Size, imap2.FetchRFC822Header}, 1, int(mailbox.Messages))
 		if err != nil {
