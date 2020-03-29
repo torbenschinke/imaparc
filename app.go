@@ -20,9 +20,10 @@ type MailboxMeta struct {
 }
 
 type App struct {
-	cfg        *Config
-	mailboxes  []*imap2.MailboxStatus
-	totalMails int
+	cfg         *Config
+	mailboxes   []*imap2.MailboxStatus
+	totalMails  int
+	failedMails []string
 }
 
 func (a *App) Archive(cfg *Config) error {
@@ -58,6 +59,14 @@ func (a *App) Archive(cfg *Config) error {
 			return err
 		}
 	}
+
+	if len(a.failedMails) > 0 {
+		fmt.Printf("ignored %d unprocessable mails:\n", len(a.failedMails))
+		for _, mail := range a.failedMails {
+			fmt.Println(mail)
+		}
+	}
+
 	return nil
 }
 
@@ -109,7 +118,13 @@ func (a *App) saveMailbox(srv *Imap, mailbox *imap2.MailboxStatus) error {
 			if _, err := os.Stat(emlFile); err != nil {
 				fullMail, err := srv.Mail(mailbox.Name, int(mail.SeqNum)) //or uid?
 				if err != nil {
-					return fmt.Errorf("cannot read full mail: %w", err)
+					if strings.Contains(err.Error(), "Missing type-specific fields") {
+						fmt.Printf("ignoring broken mail %d: %s Reason: %v\n", mail.SeqNum, debugTitle(mail), err)
+						a.failedMails = append(a.failedMails, debugTitle(mail))
+						continue
+					} else {
+						return fmt.Errorf("cannot read full mail: %w", err)
+					}
 				}
 				eml, err := bodyFor(fullMail, imap2.FetchRFC822)
 				if err != nil {

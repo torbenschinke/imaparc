@@ -9,7 +9,8 @@ Supports also a batch mode, to archive a lot of servers in one step.
 
 ```bash
 # do not do this in a go module folder
-go get install github.com/torbenschinke/imaparc
+go get -u github.com/torbenschinke/imaparc
+go install github.com/torbenschinke/imaparc
 ```
 
 ## backup a single imap account
