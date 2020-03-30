@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>imaparc search</title>
+    <style>
+        body {
+            font-family: "Roboto Thin", sans-serif;
+        }
+
+        .content {
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 900px;
+
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .results p {
+            margin-top: 0px;
+            margin-bottom: 4px;
+        }
+
+        .results span {
+            font-size: small;
+        }
+
+        .results a {
+            font-size: small;
+        }
+
+        h2 {
+            font-size: large;
+        }
+
+        .searchfield {
+            border-radius: 25px;
+            padding: 4px;
+            border: 1px solid #000000;
+            width: 100%;
+            display: block;
+        }
+
+        .searchfield:focus {
+            border: 1px solid #757575;
+            outline: none;
+        }
+
+        .searchbutton {
+            background-color: #e4e4e4;
+            border: 0;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .searchbutton:focus {
+            background-color: #dcdcdc;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+<div class="content">
+    <div class="header">
+        <form action="/" method="get">
+            <h1>imaparchive search</h1>
+            <input name="q" class="searchfield" type="text"/>
+            <button class="searchbutton" type="submit">Search</button>
+        </form>
+    </div>
+    <div class="results">
+        <span class="rescount">ca. 2 results</span>
+        <h2>Super email subject</h2>
+        <p>Some mail body excerpt</p>
+        <a href="#">Download</a>
+        <span>5 Attachments</span>
+        <span>64kByte</span>
+        <br>
+        <br>
+        <h2>Super email subject</h2>
+        <p>Some mail body excerpt</p>
+        <br>
+        <h2>Super email subject</h2>
+        <p>Some mail body excerpt</p>
+        <br>
+
+    </div>
+</div>
+</body>
+</html>

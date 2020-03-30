@@ -20,9 +20,19 @@ func main() {
 	configFile := flag.String("configFile", "", "filename to a batch configuration in json format")
 	help := flag.Bool("help", false, "shows this help")
 
+	srcCfg := &SearchConfig{}
+	flag.StringVar(&srcCfg.Dir, "searchDir", "", "directory to index")
+	flag.StringVar(&srcCfg.Host, "searchHost", "localhost", "the ip or hostname to bind the search http server")
+	flag.IntVar(&srcCfg.Port, "searchPort", 8080, "the port to bind the search http server")
+
 	flag.Parse()
 	if *help {
 		flag.PrintDefaults()
+		return
+	}
+
+	if len(srcCfg.Dir) > 0 {
+		searchMode(srcCfg)
 		return
 	}
 
@@ -33,6 +43,16 @@ func main() {
 	}
 
 	fmt.Println("archive completed")
+}
+
+func searchMode(cfg *SearchConfig) {
+	search, err := NewSearch(cfg)
+	if err != nil {
+		fmt.Println("failed to init search: %v", err)
+		os.Exit(5)
+	}
+	srv := NewServer(search)
+	srv.Start(cfg.Host, cfg.Port)
 }
 
 func batchMode(cfgFile string) {

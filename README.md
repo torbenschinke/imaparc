@@ -5,6 +5,8 @@ mails, just keeps adding.
 
 Supports also a batch mode, to archive a lot of servers in one step.
 
+... and one more thing: there is also an integrated indexer and web ui.
+
 ## installation
 
 ```bash
@@ -59,3 +61,11 @@ Finally invoke imaparc:
 imaparc -configFile=/Users/home/mails/config.json
 ```
 
+## Search engine
+You can start an automatic indexer and web server to perform simple searches. Launch like this:
+
+````bash
+imaparc -searchDir=/Users/home/mails/mailarchive -searchHost=localhost -searchPort=8080
+````
+
+![Screenshot](example.png)
